@@ -6,7 +6,15 @@
         xmlns:local="clr-namespace:ExifRenamer"
         xmlns:Properties="clr-namespace:ExifRenamer.Properties" x:Class="ExifRenamer.MainWindow"
         mc:Ignorable="d"
-        Title="ExifRenamer" Height="450" Width="800" Closed="Window_Closed" Drop="txtLog_Drop" AllowDrop="True" PreviewDragOver="txtLog_PreviewDragOver">
+        Title="ExifRenamer"
+        Height="450"
+        Width="800"
+        Closed="Window_Closed"
+        Drop="txtLog_Drop"
+        AllowDrop="True"
+        PreviewDragOver="txtLog_PreviewDragOver"
+        ContentRendered="Window_ContentRendered"
+        >
     <Window.DataContext>
         <Properties:Settings/>
     </Window.DataContext>

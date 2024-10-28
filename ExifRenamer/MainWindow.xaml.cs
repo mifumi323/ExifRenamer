@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 
@@ -35,23 +36,55 @@ namespace ExifRenamer
             {
                 var inputFilePaths = (string[])e.Data.GetData(DataFormats.FileDrop);
                 var pattern = txtOutputPath.Text;
-                foreach (var inputFilePath in inputFilePaths)
+                TransratePaths(inputFilePaths, pattern);
+                e.Handled = true;
+            }
+        }
+
+        private void TransratePaths(IEnumerable<string> inputFilePaths, string pattern)
+        {
+            foreach (var inputFilePath in inputFilePaths)
+            {
+                var outputFilePath = Renamer.TranslatePath(inputFilePath, pattern);
+                txtLog.Text += $"in: {inputFilePath}\nout: {outputFilePath}\n";
+                if (!string.IsNullOrEmpty(outputFilePath))
                 {
-                    var outputFilePath = Renamer.TranslatePath(inputFilePath, pattern);
-                    txtLog.Text += $"in: {inputFilePath}\nout: {outputFilePath}\n";
-                    if (!string.IsNullOrEmpty(outputFilePath))
+                    try
                     {
-                        try
-                        {
-                            File.Move(inputFilePath, outputFilePath, false);
-                        }
-                        catch (Exception ex)
-                        {
-                            txtLog.Text += $"{ex.Message}\n";
-                        }
+                        File.Move(inputFilePath, outputFilePath, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        txtLog.Text += $"{ex.Message}\n";
                     }
                 }
-                e.Handled = true;
+            }
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+            {
+                var inputFilePaths = new List<string>();
+                foreach (var arg in args[1..])
+                {
+                    if (arg.Contains('*') || arg.Contains('?'))
+                    {
+                        var dir = Path.GetDirectoryName(arg) ?? Directory.GetCurrentDirectory();
+                        var filename = Path.GetFileName(arg);
+                        foreach (var path in Directory.GetFiles(dir, filename))
+                        {
+                            inputFilePaths.Add(path);
+                        }
+                    }
+                    else
+                    {
+                        inputFilePaths.Add(arg);
+                    }
+                }
+                var pattern = txtOutputPath.Text;
+                TransratePaths(inputFilePaths, pattern);
             }
         }
     }
